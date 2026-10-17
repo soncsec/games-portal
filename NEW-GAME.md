@@ -21,6 +21,7 @@ Steps marked **(owner)** need the owner, either to do them or to approve them.
   | games-portal | 5170 | 4170 | 4171 |
   | star-destroyer | 5173 | 4173 | 4174 |
   | contro | 5174 | 4175 | 4176 |
+  | extrat | 5175 | 6175 | 6176 |
   | game-template (the template itself) | 5190 | 6190 | 6191 |
 
   Also check `grep -h devPort games/*.json` here, and add your game to this table in step 6.
