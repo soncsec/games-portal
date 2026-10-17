@@ -1,8 +1,0 @@
-{
-  "slug": "dry-run-game",
-  "title": "Dry Run",
-  "summary": "A throwaway game made from the template to test the new-game runbook (T1.5). It will be removed.",
-  "tags": ["test"],
-  "status": "in-development",
-  "devPort": 5175
-}
