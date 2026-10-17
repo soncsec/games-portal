@@ -1,0 +1,25 @@
+# Source art pack (never committed here)
+legacy/
+
+# Dependencies and build output
+node_modules/
+dist/
+coverage/
+playwright-report/
+test-results/
+
+# Environment and secrets
+.env
+.env.*
+*.pem
+*.key
+
+# OS and editor files
+.DS_Store
+__MACOSX/
+.vscode/
+.idea/
+*.swp
+
+# Local deployment settings (server address, SSH user)
+deploy/server.env
