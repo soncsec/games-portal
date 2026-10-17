@@ -20,7 +20,8 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test",
-    "check": "npm run format:check && npm run lint && npm run typecheck && npm test && npm run build && npm run test:e2e"
+    "test:release": "bash tests/release/test_release_remote.sh && bash tests/release/test_release_flow.sh && python3 -m unittest discover -s tests/release -p 'test_*.py'",
+    "check": "npm run format:check && npm run lint && npm run typecheck && npm test && npm run test:release && npm run build && npm run test:e2e"
   },
   "devDependencies": {
     "@axe-core/playwright": "4.13.0",

@@ -23,3 +23,6 @@ __MACOSX/
 
 # Local deployment settings (server address, SSH user)
 deploy/server.env
+
+# Python bytecode
+__pycache__/
