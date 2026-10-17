@@ -59,7 +59,7 @@ remote() {
 smoke() {
   local args=() slug
   while read -r slug; do args+=(--warn-path "$slug/"); done < <(
-    python3 -c 'import json; [print(g["slug"]) for g in json.load(open("games.json")) if g["status"] == "live"]'
+    python3 scripts/live_games.py
   )
   python3 scripts/smoke_test.py "http://$SERVER/" --host "$SITE_HOST" --title "$TITLE" "${args[@]}" "$@"
 }

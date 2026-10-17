@@ -5,7 +5,7 @@ Read the planning docs in the `star-destroyer` repo first (`PROJECT.md`, `ARCHIT
 ## This repo owns
 
 - The portal home page at `games.soncrant.com/` (server folder `/var/www/html/soncrant.com/pub/games/`, top level only).
-- One entry file per game in `games/<slug>.json` (from milestone T1). A PR adding a game's entry is how a game claims its name and URL.
+- One entry file per game in `games/<slug>.json`. A PR adding a game's entry (status `in-development` at first) is how a game claims its name and URL. A game's session edits only its own entry file and card image here.
 - The security-header configuration supplied to the owner for the `games/` folder.
 
 ## Scope boundary

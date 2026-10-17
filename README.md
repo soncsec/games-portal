@@ -10,7 +10,27 @@ Status: milestone P1 in progress.
 
 ## Adding or editing a game
 
-Edit `games.json` (validated by `src/logic/games.ts`: slug, title, a 20–200 character summary, `images/<name>.png`, up to 4 tags, status `live` or `coming-soon`).
+Each game has **its own file**, `games/<slug>.json`, so sessions building different games never edit the same file (ADR-011). A game's PR touches only its own file and its card image.
+
+```json
+{
+  "slug": "my-game",
+  "title": "My Game",
+  "summary": "One or two sentences, 20–200 characters.",
+  "image": "images/my-game.png",
+  "tags": ["shooter", "arcade"],
+  "status": "in-development"
+}
+```
+
+- **File name = slug.** `games/my-game.json` must contain `"slug": "my-game"`. The game is served at `games.soncrant.com/my-game/`.
+- **Slugs:** lowercase words joined by `-`. `assets` and `images` are reserved for the portal.
+- **Status:**
+  - `in-development` claims the slug and URL but shows no card; the image is optional until then.
+  - `coming-soon` shows a greyed-out card.
+  - `live` links to the game.
+- **Card image:** `public/images/<name>.png`, 256×192.
+- Cards are shown live first, then coming soon, each by title. The rules are enforced by `src/logic/games.ts` and its tests.
 
 ## Development
 

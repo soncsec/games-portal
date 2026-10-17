@@ -1,6 +1,14 @@
 import { describe, expect, it } from 'vitest';
-import realGames from '../../games.json';
-import { GamesDataError, LIMITS, parseGames, playUrl, type GameEntry } from '../../src/logic/games';
+import {
+  GamesDataError,
+  LIMITS,
+  parseGameFiles,
+  parseGames,
+  playUrl,
+  shownGames,
+  type GameEntry,
+} from '../../src/logic/games';
+import { readGameFiles } from '../support/gameFiles';
 
 const valid: GameEntry = {
   slug: 'star-destroyer',
@@ -34,8 +42,8 @@ describe('parseGames', () => {
     expect(parseGames([])).toEqual([]);
   });
 
-  it('accepts the real games.json', () => {
-    expect(parseGames(realGames).length).toBeGreaterThan(0);
+  it('accepts the real games/ files', () => {
+    expect(parseGameFiles(readGameFiles()).length).toBeGreaterThan(0);
   });
 
   it('rejects data that is not a list', () => {
@@ -115,7 +123,7 @@ describe('parseGames', () => {
 
   it('rejects an unknown status', () => {
     expect(problems(one({ status: 'beta' }))).toEqual([
-      'game 1: status must be one of live, coming-soon',
+      'game 1: status must be one of live, coming-soon, in-development',
     ]);
   });
 
@@ -129,6 +137,83 @@ describe('parseGames', () => {
 
   it('the error message lists the problems', () => {
     expect(() => parseGames(one({ status: 'x' }))).toThrow(/status must be one of/);
+  });
+});
+
+describe('reserved and in-development', () => {
+  it.each([['assets'], ['images']])('rejects the reserved slug %j', (slug) => {
+    expect(problems(one({ slug }))).toEqual([`game 1: slug "${slug}" is reserved for the portal`]);
+  });
+
+  it('lets an in-development game claim its slug without an image', () => {
+    const claim = { ...valid, status: 'in-development' } as Record<string, unknown>;
+    delete claim['image'];
+    expect(problems([claim])).toEqual([]);
+  });
+
+  it('still requires an image for live and coming-soon games', () => {
+    for (const status of ['live', 'coming-soon']) {
+      const g = { ...valid, status } as Record<string, unknown>;
+      delete g['image'];
+      expect(problems([g])).toHaveLength(1);
+    }
+  });
+
+  it('checks an in-development image if one is given', () => {
+    expect(problems(one({ status: 'in-development', image: 'nope.png' }))).toHaveLength(1);
+  });
+});
+
+describe('parseGameFiles', () => {
+  const file = (g: Partial<GameEntry> & { slug: string }) => ({ [`../games/${g.slug}.json`]: g });
+
+  it('reads one file per game', () => {
+    const games = parseGameFiles({
+      ...file(valid),
+      ...file({ ...valid, slug: 'rocket-race', title: 'Rocket Race' }),
+    });
+    expect(games.map((g) => g.slug)).toEqual(['rocket-race', 'star-destroyer']);
+  });
+
+  it('requires the file name to match the slug', () => {
+    expect(() => parseGameFiles({ '../games/other-game.json': valid })).toThrow(
+      /other-game\.json: file name must be the game's slug \("star-destroyer\.json"\)/,
+    );
+  });
+
+  it('names problems by file, not by position', () => {
+    try {
+      parseGameFiles(file({ ...valid, status: 'beta' as never }));
+      expect.unreachable();
+    } catch (e) {
+      expect((e as GamesDataError).problems).toEqual([
+        '../games/star-destroyer.json: status must be one of live, coming-soon, in-development',
+      ]);
+    }
+  });
+
+  it('accepts no games at all', () => {
+    expect(parseGameFiles({})).toEqual([]);
+  });
+});
+
+describe('shownGames', () => {
+  const g = (slug: string, title: string, status: GameEntry['status']): GameEntry => ({
+    ...valid,
+    slug,
+    title,
+    status,
+  });
+
+  it('hides in-development games and lists live first, then coming soon, each by title', () => {
+    const shown = shownGames([
+      g('zeta', 'Zeta', 'coming-soon'),
+      g('secret', 'Secret', 'in-development'),
+      g('beta', 'Beta', 'live'),
+      g('alpha', 'Alpha', 'coming-soon'),
+      g('omega', 'Omega', 'live'),
+    ]);
+    expect(shown.map((x) => x.slug)).toEqual(['beta', 'omega', 'alpha', 'zeta']);
   });
 });
 
