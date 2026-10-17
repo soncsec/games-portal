@@ -19,13 +19,35 @@ test('home page lists every game with no console errors or third-party requests'
   await expect(page).toHaveTitle('Soncrant Arcade');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Soncrant Arcade');
 
-  const links = page.getByRole('list', { name: 'Games' }).getByRole('link');
-  await expect(links).toHaveCount(data.length);
+  const cards = page.getByRole('list', { name: 'Games' }).locator(':scope > li');
+  await expect(cards).toHaveCount(data.length);
   for (const [i, game] of data.entries()) {
-    await expect(links.nth(i)).toHaveText(game.title);
-    await expect(links.nth(i)).toHaveAttribute('href', `./${game.slug}/`);
+    const card = cards.nth(i);
+    await expect(card.getByRole('heading', { level: 2 })).toHaveText(game.title);
+    await expect(card.getByText(game.summary)).toBeVisible();
+    const img = card.getByRole('img', { name: `${game.title} screenshot` });
+    await img.scrollIntoViewIfNeeded();
+    // The image file exists and decoded (naturalWidth is 0 for a broken image).
+    await expect
+      .poll(() => img.evaluate((e: HTMLImageElement) => e.naturalWidth))
+      .toBeGreaterThan(0);
+    if (game.status === 'live') {
+      await expect(card.getByRole('link')).toHaveAttribute('href', `./${game.slug}/`);
+    } else {
+      await expect(card.getByRole('link')).toHaveCount(0);
+    }
   }
+
+  // The pixel font is bundled and actually loads.
+  expect(await page.evaluate(() => document.fonts.check('16px "Press Start 2P"'))).toBe(true);
 
   expect(errors).toEqual([]);
   expect(foreign).toEqual([]);
+});
+
+test('cards are reachable by keyboard', async ({ page }) => {
+  await page.goto('./');
+  await page.keyboard.press('Tab');
+  const focused = page.locator(':focus');
+  await expect(focused).toHaveAttribute('href', `./${data[0]?.slug}/`);
 });
