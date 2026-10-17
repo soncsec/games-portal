@@ -1,0 +1,93 @@
+name: Production check
+
+# Checks the live site from outside the home network (a GitHub runner):
+# smoke tests of the portal and every live game with the security headers
+# required, then an OWASP ZAP baseline scan of each (ADR-007, P1.9).
+# Run it by hand after a release: Actions -> Production check -> Run workflow,
+# or `gh workflow run "Production check" -R soncsec/games-portal`.
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 7 * * 1' # weekly, Monday 07:17 UTC
+
+permissions:
+  contents: read
+
+env:
+  SITE: http://games.soncrant.com/
+
+jobs:
+  smoke:
+    name: Smoke test from outside
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    outputs:
+      games: ${{ steps.games.outputs.list }}
+    steps:
+      - name: Check out code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Portal
+        run: python3 scripts/smoke_test.py "$SITE" --title "Soncrant Arcade" --require-headers
+
+      - name: Live games
+        id: games
+        run: |
+          set -e
+          slugs=$(python3 -c 'import json; print(" ".join(g["slug"] for g in json.load(open("games.json")) if g["status"] == "live"))')
+          for slug in $slugs; do
+            echo "== $slug"
+            python3 scripts/smoke_test.py "$SITE$slug/" --require-headers
+          done
+          echo "list=$slugs" >>"$GITHUB_OUTPUT"
+
+  zap:
+    name: ZAP baseline scan of production
+    needs: smoke
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Check out code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Run ZAP 2.17.0 baseline on the portal and each live game (passive scan only)
+        env:
+          GAMES: ${{ needs.smoke.outputs.games }}
+          ZAP_IMAGE: ghcr.io/zaproxy/zaproxy@sha256:5ccfff9a411743ab2615136a2edd7416bec9ce41572fa94e935df38c14adb2b6 # 2.17.0
+        run: |
+          mkdir -p zap && chmod 777 zap
+          for target in portal $GAMES; do
+            url="$SITE"; [ "$target" = portal ] || url="$SITE$target/"
+            echo "== $url"
+            set +e
+            # -I: warnings alone don't fail the run; scripts/zap_check.py decides.
+            docker run --rm -v "$PWD/zap:/zap/wrk:rw" "$ZAP_IMAGE" \
+              zap-baseline.py -t "$url" -J "$target.json" -r "$target.html" -I
+            rc=$?
+            set -e
+            # 0-2 = scan finished; 3 or more = ZAP itself failed.
+            if [ "$rc" -ge 3 ]; then exit "$rc"; fi
+          done
+
+      - name: Fail on high-risk findings
+        env:
+          GAMES: ${{ needs.smoke.outputs.games }}
+        run: |
+          status=0
+          for target in portal $GAMES; do
+            echo "== $target"
+            python3 scripts/zap_check.py "zap/$target.json" || status=1
+          done
+          exit $status
+
+      - name: Upload ZAP reports
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: zap-production
+          path: zap/
+          retention-days: 30
