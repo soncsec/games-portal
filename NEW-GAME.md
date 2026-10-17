@@ -116,6 +116,8 @@ A good first message: *"Read CLAUDE.md, PROJECT.md, ARCHITECTURE.md and ROADMAP.
 
 The session works only inside `~/dev/games/<slug>/`. Shared rules are in its CLAUDE.md.
 
+**One rule worth repeating to every session:** Other games' sessions share this machine. Stop only processes you started, by PID or by your own port (e.g. the pid listening on your Playwright port). Never stop processes by name (`pkill -f vite`, `pkill -f "vite preview"`, `killall node`): that kills other sessions' servers mid-run.
+
 ## 8. Later
 
 - **Show the card:** a portal PR (again from a separate clone) adds `public/images/<slug>.png` (256×192) and sets `"status": "coming-soon"`, then `"live"` once released.

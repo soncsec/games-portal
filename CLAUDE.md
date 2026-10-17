@@ -18,6 +18,8 @@ Read the planning docs in the `star-destroyer` repo first (`PROJECT.md`, `ARCHIT
 
 Portal dev server **5170**, preview **4170**, Playwright test server **4171**. Games use 5173 and up.
 
+Other games' sessions share this machine. Stop only processes you started, by PID or by your own port (e.g. the pid listening on your Playwright port). Never stop processes by name (`pkill -f vite`, `pkill -f "vite preview"`, `killall node`): that kills other sessions' servers mid-run.
+
 ## Checks every PR must pass
 
 `npm run format:check`, `npm run lint`, `npm run typecheck`, `npm test`, `npm run build`, `npm run test:e2e`, `npm audit --audit-level=high`. Cards are built with DOM APIs and `textContent`; ESLint forbids `innerHTML`.
