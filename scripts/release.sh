@@ -15,7 +15,7 @@ REPO=soncsec/games-portal
 SITE_HOST=games.soncrant.com
 TITLE="Soncrant Arcade"
 KEEP=5
-REQUIRED_CHECKS=("Repo checks" "Build and test" "CodeQL analysis")
+REQUIRED_CHECKS=("Repo checks" "Build and test" "CodeQL analysis" "ZAP baseline scan")
 
 ROOT="$(git rev-parse --show-toplevel)"
 cd "$ROOT"
@@ -74,8 +74,8 @@ preflight() {
   sha="$(git rev-parse HEAD)"
   echo "commit $sha"
 
-  # Static checks (CodeQL, gitleaks, audit, tests) ran in CI on this exact
-  # commit; require every one to have passed.
+  # Static checks (CodeQL, gitleaks, audit, tests) and the dynamic ZAP scan of
+  # staging all ran in CI on this exact commit; require every one to have passed.
   local runs
   runs="$(gh api "repos/$REPO/commits/$sha/check-runs" \
     --jq '.check_runs[] | "\(.name)\t\(.status)\t\(.conclusion)"')"
