@@ -22,7 +22,6 @@ describe('games.soncrant.com Apache config', () => {
     expect(Object.keys(h).sort()).toEqual(
       [
         'Content-Security-Policy',
-        'Cross-Origin-Opener-Policy',
         'Cross-Origin-Resource-Policy',
         'Permissions-Policy',
         'Referrer-Policy',
@@ -32,6 +31,8 @@ describe('games.soncrant.com Apache config', () => {
     );
     expect(h['X-Content-Type-Options']).toBe('nosniff');
     expect(h['X-Frame-Options']).toBe('DENY');
+    // Ignored by browsers over HTTP (ADR-010), and Chrome logs an error about it.
+    expect(h).not.toHaveProperty('Cross-Origin-Opener-Policy');
   });
 
   it('CSP allows only this origin and blocks the risky features', () => {
