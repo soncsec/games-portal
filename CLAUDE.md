@@ -14,6 +14,16 @@ Read the planning docs in the `star-destroyer` repo first (`PROJECT.md`, `ARCHIT
 - The release script for this repo deploys only the portal's own files at the top of `games/`, and never deletes or overwrites a game's subfolder.
 - Apache configuration is managed by the owner. Propose changes; don't apply them.
 
+## Local ports
+
+Portal dev server **5170**, preview **4170**, Playwright test server **4171**. Games use 5173 and up.
+
+## Checks every PR must pass
+
+`npm run format:check`, `npm run lint`, `npm run typecheck`, `npm test`, `npm run build`, `npm run test:e2e`, `npm audit --audit-level=high`. Cards are built with DOM APIs and `textContent`; ESLint forbids `innerHTML`.
+
+Node.js comes from nvm: `export NVM_DIR=$HOME/.nvm; . $NVM_DIR/nvm.sh`.
+
 ## Always ask the owner before
 
 Architecture or scope changes, new dependencies, destructive operations, any production deployment, and security decisions.
