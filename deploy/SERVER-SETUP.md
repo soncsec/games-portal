@@ -3,7 +3,8 @@
 One-time setup so release scripts can publish the portal and games to `games.soncrant.com` **without sudo**. The owner runs every `sudo` command; Claude never gets root.
 
 - **Server:** Debian 13, Apache 2.4, HTTP on port 80 (ADR-010)
-- **Deploy source:** the dev machine (currently `192.168.11.242`)
+- **Deploy source:** the dev machine
+- **Addresses:** this public repo never contains them. `<SERVER>` and `<DEV_MACHINE_IP>` below come from the untracked file `deploy/server.env` on the dev machine (template: `deploy/server.env.example`). Claude gives you the real values in the chat.
 - **What this creates:**
   - a `deploy` user that can write only to the games web folder and a releases folder
   - SSH login with one key, from the dev machine only
@@ -80,13 +81,13 @@ Claude will create a dedicated key on the dev machine and send you its **public*
 
 ```sh
 sudo install -d -o deploy -g deploy -m 700 /home/deploy/.ssh
-echo 'from="192.168.11.242",restrict ssh-ed25519 AAAA...REPLACE... soncrant-deploy' \
+echo 'from="<DEV_MACHINE_IP>",restrict ssh-ed25519 AAAA...REPLACE... soncrant-deploy' \
   | sudo tee /home/deploy/.ssh/authorized_keys >/dev/null
 sudo chown deploy:deploy /home/deploy/.ssh/authorized_keys
 sudo chmod 600 /home/deploy/.ssh/authorized_keys
 ```
 
-- `from="192.168.11.242"`: the key is refused from any other address, even if it were copied off the dev machine. If the dev machine's address changes (DHCP), this line must be updated. A DHCP reservation for it avoids that.
+- `from="<DEV_MACHINE_IP>"`: the key is refused from any other address, even if it were copied off the dev machine. If the dev machine's address changes (DHCP), this line must be updated. A DHCP reservation for it avoids that.
 - `restrict`: no port forwarding, agent forwarding, X11 or interactive terminal. Plain commands and file copies (`rsync`) still work.
 
 If Step 1 showed an `AllowUsers` or `AllowGroups` line, add `deploy` to it, then run `sudo sshd -t && sudo systemctl reload ssh`. `sshd -t` checks the config first, so a typo can't lock you out.
@@ -108,9 +109,9 @@ The `games.soncrant.com` site needs:
 ## Step 6 — Check it works (Claude runs this from the dev machine)
 
 ```sh
-ssh -i ~/.ssh/soncrant_deploy deploy@192.168.1.43 'id && touch /srv/games-releases/.probe && rm /srv/games-releases/.probe && echo write-ok'
-ssh -i ~/.ssh/soncrant_deploy deploy@192.168.1.43 'touch /etc/probe' # must FAIL (permission denied)
-ssh -i ~/.ssh/soncrant_deploy deploy@192.168.1.43 'sudo -n true'     # must FAIL (no sudo)
+ssh -i ~/.ssh/soncrant_deploy deploy@<SERVER> 'id && touch /srv/games-releases/.probe && rm /srv/games-releases/.probe && echo write-ok'
+ssh -i ~/.ssh/soncrant_deploy deploy@<SERVER> 'touch /etc/probe' # must FAIL (permission denied)
+ssh -i ~/.ssh/soncrant_deploy deploy@<SERVER> 'sudo -n true'     # must FAIL (no sudo)
 ```
 
 ## Undo
