@@ -55,7 +55,7 @@ id deploy 2>&1
 ## Step 2 — Create the `deploy` user (no password, no sudo)
 
 ```sh
-sudo adduser --disabled-password --gecos "Soncrant Arcade deploys" deploy
+sudo adduser --disabled-password --comment "Soncrant Arcade deploys" deploy
 sudo passwd -l deploy          # lock the password: key login only
 ```
 
@@ -74,6 +74,8 @@ sudo install -d -o deploy -g www-data -m 2755 /srv/games-releases
 
 - **Mode `2755`:** the owner (`deploy`) can write. Group and others can read and enter but not write. The setgid bit (`2`) makes new files inherit the `www-data` group.
 - If `pub/games` already exists with files in it, **stop and tell Claude** before running the first line, so nothing gets overwritten.
+- If `pub/games` already exists (it did on 2026-10-17, created by the owner), change its owner instead: `sudo chown deploy:www-data …/pub/games && sudo chmod 2755 …/pub/games`.
+- **Never add `deploy` to the `www-data` group.** On this server `pub/` and its site folders are group-writable by `www-data` (`drwxrwsr-x`), so that group can write to every site. `deploy` gets write access only as the *owner* of its two folders.
 
 ## Step 4 — Allow one SSH key, from the dev machine only
 
@@ -113,6 +115,16 @@ ssh -i ~/.ssh/soncrant_deploy deploy@<SERVER> 'id && touch /srv/games-releases/.
 ssh -i ~/.ssh/soncrant_deploy deploy@<SERVER> 'touch /etc/probe' # must FAIL (permission denied)
 ssh -i ~/.ssh/soncrant_deploy deploy@<SERVER> 'sudo -n true'     # must FAIL (no sudo)
 ```
+
+## Done on 2026-10-17
+
+Steps 1–4 were run by the owner, and the Step 6 checks were run by Claude:
+- `deploy` can write to `pub/games` and `/srv/games-releases`.
+- It's denied for `/etc`, `pub/` and another site's folder.
+- `sudo` needs a password, and the account has none, so it can't use sudo.
+- An interactive terminal is refused.
+
+Logging in with the deploy key proves the right public key is installed. The server's ED25519 host key was recorded on the dev machine on first connect; the owner still needs to confirm its fingerprint with `ssh-keygen -lf /etc/ssh/ssh_host_ed25519_key.pub`.
 
 ## Undo
 
