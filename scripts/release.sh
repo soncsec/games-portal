@@ -5,6 +5,7 @@
 #
 #   scripts/release.sh deploy [--dry-run]   check, build, upload, switch, smoke test
 #   scripts/release.sh rollback             switch back to the previous release
+#   scripts/release.sh activate <id>        switch to a specific release (e.g. forward after a rollback)
 #   scripts/release.sh status               list releases on the server
 #
 # Settings come from deploy/server.env (git-ignored; see deploy/server.env.example).
@@ -155,6 +156,15 @@ cmd_rollback() {
   smoke
 }
 
+cmd_activate() {
+  local id="${1:-}"
+  [[ -n "$id" ]] || die "usage: release.sh activate <release id> (see: release.sh status)"
+  load_env
+  remote activate "$SLUG" "$id"
+  remote portal-links "$SLUG"
+  smoke --release-id "$id"
+}
+
 cmd_status() {
   load_env
   remote status "$SLUG"
@@ -163,9 +173,10 @@ cmd_status() {
 case "${1:-}" in
   deploy) shift && cmd_deploy "$@" ;;
   rollback) cmd_rollback ;;
+  activate) shift && cmd_activate "$@" ;;
   status) cmd_status ;;
   *)
-    sed -n '2,10p' "$0"
+    sed -n '2,11p' "$0"
     exit 2
     ;;
 esac

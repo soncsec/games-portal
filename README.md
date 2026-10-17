@@ -50,6 +50,7 @@ git checkout main && git pull
 scripts/release.sh deploy --dry-run   # checks and build only; shows what is on the server
 scripts/release.sh deploy             # upload, switch, smoke test (rolls back on failure)
 scripts/release.sh rollback           # back to the previous release
+scripts/release.sh activate <id>      # switch to a specific release (e.g. forward again)
 scripts/release.sh status             # list releases on the server
 ```
 
