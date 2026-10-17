@@ -38,7 +38,7 @@ SH
 cat >"$T/bin/gh" <<'SH'
 #!/usr/bin/env bash
 c="${FAKE_CI:-success}"
-printf 'Repo checks\tcompleted\t%s\nBuild and test\tcompleted\tsuccess\nCodeQL analysis\tcompleted\tsuccess\n' "$c"
+printf 'Repo checks\tcompleted\t%s\nBuild and test\tcompleted\tsuccess\nCodeQL analysis\tcompleted\tsuccess\nZAP baseline scan\tcompleted\tsuccess\n' "$c"
 SH
 cat >"$T/bin/npm" <<'SH'
 #!/usr/bin/env bash
