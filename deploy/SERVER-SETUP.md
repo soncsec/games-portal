@@ -124,7 +124,7 @@ Steps 1–4 were run by the owner, and the Step 6 checks were run by Claude:
 - `sudo` needs a password, and the account has none, so it can't use sudo.
 - An interactive terminal is refused.
 
-The key fingerprint matched, and the server's ED25519 host key was recorded on the dev machine.
+Logging in with the deploy key proves the right public key is installed. The server's ED25519 host key was recorded on the dev machine on first connect; the owner still needs to confirm its fingerprint with `ssh-keygen -lf /etc/ssh/ssh_host_ed25519_key.pub`.
 
 ## Undo
 
