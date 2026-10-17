@@ -58,7 +58,7 @@ git init -q -b main
 mkdir -p scripts deploy
 cp "$SRC/scripts/release.sh" "$SRC/scripts/release-remote.sh" "$SRC/scripts/smoke_test.py" scripts/
 printf 'dist/\ndeploy/server.env\n' >.gitignore
-cp "$SRC/games.json" .
+cp -r "$SRC/games" . && cp "$SRC/scripts/live_games.py" scripts/
 git add -A && git -c user.name=t -c user.email=t@t commit -q -m init
 git remote add origin "$T/origin.git" && git push -q origin main
 touch "$T/fake_key"

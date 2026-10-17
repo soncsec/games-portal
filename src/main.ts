@@ -1,6 +1,8 @@
-import data from '../games.json';
 import './style.css';
-import { parseGames, playUrl, type GameEntry } from './logic/games';
+import { parseGameFiles, playUrl, shownGames, type ShownGame } from './logic/games';
+
+// Every games/<slug>.json, bundled at build time (one file per game: ADR-011).
+const files = import.meta.glob<unknown>('../games/*.json', { eager: true, import: 'default' });
 
 // Cards are built with DOM APIs and textContent only, never HTML strings.
 function el<K extends keyof HTMLElementTagNameMap>(
@@ -14,7 +16,7 @@ function el<K extends keyof HTMLElementTagNameMap>(
   return node;
 }
 
-function card(game: GameEntry): HTMLLIElement {
+function card(game: ShownGame): HTMLLIElement {
   const live = game.status === 'live';
   const item = el('li', live ? 'card' : 'card card--soon');
 
@@ -49,4 +51,4 @@ function card(game: GameEntry): HTMLLIElement {
 
 const list = document.getElementById('games');
 if (!list) throw new Error('#games element missing');
-list.append(...parseGames(data).map(card));
+list.append(...shownGames(parseGameFiles(files)).map(card));

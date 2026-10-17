@@ -5,13 +5,20 @@ export interface GameEntry {
   title: string;
   /** One or two sentences shown on the card. */
   summary: string;
-  /** Card image path inside the portal, e.g. images/star-destroyer.png */
-  image: string;
+  /** Card image path inside the portal, e.g. images/star-destroyer.png. Optional only while in-development. */
+  image?: string;
   tags: string[];
   status: GameStatus;
 }
 
-export type GameStatus = 'live' | 'coming-soon';
+/**
+ * live: card links to the game. coming-soon: card shown, not clickable.
+ * in-development: claims the slug and URL (ADR-011); no card yet.
+ */
+export type GameStatus = 'live' | 'coming-soon' | 'in-development';
+
+/** A game that gets a card: its image is guaranteed. */
+export type ShownGame = GameEntry & { image: string; status: 'live' | 'coming-soon' };
 
 export const LIMITS = {
   slugMax: 40,
@@ -25,7 +32,13 @@ const SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const IMAGE = /^images\/[a-z0-9]+(?:-[a-z0-9]+)*\.(?:png|webp|jpg)$/;
 const TAG = /^[a-z0-9]+(?: [a-z0-9]+)*$/;
 const KEYS = ['slug', 'title', 'summary', 'image', 'tags', 'status'] as const;
-const STATUSES: readonly string[] = ['live', 'coming-soon'] satisfies GameStatus[];
+const STATUSES: readonly string[] = [
+  'live',
+  'coming-soon',
+  'in-development',
+] satisfies GameStatus[];
+/** The portal's own top-level folders on the server; a game can't use these names. */
+const RESERVED_SLUGS: readonly string[] = ['assets', 'images'];
 
 /** Thrown when the games data is invalid. Lists every problem found. */
 export class GamesDataError extends Error {
@@ -66,12 +79,15 @@ export function parseGames(data: unknown): GameEntry[] {
 
     if (text(slug, 'slug', 1, LIMITS.slugMax)) {
       if (!SLUG.test(slug)) problems.push(`${where}: slug must be lowercase words joined by "-"`);
+      else if (RESERVED_SLUGS.includes(slug))
+        problems.push(`${where}: slug "${slug}" is reserved for the portal`);
       else if (seen.has(slug)) problems.push(`${where}: duplicate slug "${slug}"`);
       seen.add(slug);
     }
     text(title, 'title', 1, LIMITS.titleMax);
     text(summary, 'summary', LIMITS.summaryMin, LIMITS.summaryMax);
-    if (typeof image !== 'string' || !IMAGE.test(image)) {
+    const imageOptional = status === 'in-development' && image === undefined;
+    if (!imageOptional && (typeof image !== 'string' || !IMAGE.test(image))) {
       problems.push(`${where}: image must look like images/<name>.png (or .webp, .jpg)`);
     }
     if (
@@ -90,6 +106,47 @@ export function parseGames(data: unknown): GameEntry[] {
 
   if (problems.length) throw new GamesDataError(problems);
   return games;
+}
+
+/**
+ * Validates one file per game (games/<slug>.json), keyed by file path as Vite's
+ * import.meta.glob gives them. Each file's name must match the slug inside it.
+ */
+export function parseGameFiles(files: Record<string, unknown>): GameEntry[] {
+  const paths = Object.keys(files).sort();
+  const problems: string[] = [];
+  for (const path of paths) {
+    const name = /([^/]+)\.json$/.exec(path)?.[1];
+    const raw = files[path];
+    const slug = isRecord(raw) ? raw['slug'] : undefined;
+    if (name !== slug)
+      problems.push(`${path}: file name must be the game's slug ("${String(slug)}.json")`);
+  }
+  try {
+    const games = parseGames(paths.map((p) => files[p]));
+    if (problems.length) throw new GamesDataError(problems);
+    return games;
+  } catch (e) {
+    if (e instanceof GamesDataError) {
+      // Name problems by file rather than by position.
+      const named = e.problems.map((m) =>
+        m.replace(/^game (\d+):/, (_, n) => `${paths[Number(n) - 1]}:`),
+      );
+      throw new GamesDataError([...problems.filter((m) => !named.includes(m)), ...named]);
+    }
+    throw e;
+  }
+}
+
+const STATUS_ORDER = { live: 0, 'coming-soon': 1 } as const;
+
+/** The games that get a card: live first, then coming soon, each by title. */
+export function shownGames(games: GameEntry[]): ShownGame[] {
+  return games
+    .filter((g): g is ShownGame => g.status !== 'in-development' && g.image !== undefined)
+    .sort(
+      (a, b) => STATUS_ORDER[a.status] - STATUS_ORDER[b.status] || a.title.localeCompare(b.title),
+    );
 }
 
 /** Relative link to a game's folder, next to the portal page. */

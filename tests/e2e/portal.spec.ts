@@ -1,5 +1,7 @@
 import { expect, test } from '@playwright/test';
-import data from '../../games.json' with { type: 'json' };
+import { cardGames } from '../support/gameFiles';
+
+const data = cardGames();
 
 test('home page lists every game with no console errors or third-party requests', async ({
   page,
@@ -49,5 +51,9 @@ test('cards are reachable by keyboard', async ({ page }) => {
   await page.goto('./');
   await page.keyboard.press('Tab');
   const focused = page.locator(':focus');
-  await expect(focused).toHaveAttribute('href', `./${data[0]?.slug}/`);
+  // Only live cards are links, so Tab lands on the first live game.
+  await expect(focused).toHaveAttribute(
+    'href',
+    `./${data.find((g) => g.status === 'live')?.slug}/`,
+  );
 });

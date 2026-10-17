@@ -36,7 +36,7 @@ jobs:
         id: games
         run: |
           set -e
-          slugs=$(python3 -c 'import json; print(" ".join(g["slug"] for g in json.load(open("games.json")) if g["status"] == "live"))')
+          slugs=$(python3 scripts/live_games.py | tr '\n' ' ')
           for slug in $slugs; do
             echo "== $slug"
             python3 scripts/smoke_test.py "$SITE$slug/" --require-headers
