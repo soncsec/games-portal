@@ -10,6 +10,9 @@ Status: milestone P1 in progress.
 
 ## Adding or editing a game
 
+Starting a brand-new game? Follow [NEW-GAME.md](NEW-GAME.md).
+
+
 Each game has **its own file**, `games/<slug>.json`, so sessions building different games never edit the same file (ADR-011). A game's PR touches only its own file and its card image.
 
 ```json
@@ -19,7 +22,8 @@ Each game has **its own file**, `games/<slug>.json`, so sessions building differ
   "summary": "One or two sentences, 20–200 characters.",
   "image": "images/my-game.png",
   "tags": ["shooter", "arcade"],
-  "status": "in-development"
+  "status": "in-development",
+  "devPort": 5175
 }
 ```
 
@@ -30,6 +34,7 @@ Each game has **its own file**, `games/<slug>.json`, so sessions building differ
   - `coming-soon` shows a greyed-out card.
   - `live` links to the game.
 - **Card image:** `public/images/<name>.png`, 256×192.
+- **devPort** (optional, recommended): the game's local dev server port, 5171–5899, unique across games.
 - Cards are shown live first, then coming soon, each by title. The rules are enforced by `src/logic/games.ts` and its tests.
 
 ## Development

@@ -4,5 +4,6 @@
   "summary": "Pilot a lone starfighter through eight sectors of alien swarms and asteroid fields. Power up your guns and take down each sector's boss.",
   "image": "images/star-destroyer.png",
   "tags": ["shooter", "arcade"],
-  "status": "live"
+  "status": "live",
+  "devPort": 5173
 }

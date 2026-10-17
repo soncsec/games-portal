@@ -9,6 +9,8 @@ export interface GameEntry {
   image?: string;
   tags: string[];
   status: GameStatus;
+  /** Local Vite dev server port, unique per game (ADR-011). 5170 is the portal's. */
+  devPort?: number;
 }
 
 /**
@@ -26,12 +28,14 @@ export const LIMITS = {
   summaryMin: 20,
   summaryMax: 200,
   tagsMax: 4,
+  devPortMin: 5171,
+  devPortMax: 5899,
 } as const;
 
 const SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const IMAGE = /^images\/[a-z0-9]+(?:-[a-z0-9]+)*\.(?:png|webp|jpg)$/;
 const TAG = /^[a-z0-9]+(?: [a-z0-9]+)*$/;
-const KEYS = ['slug', 'title', 'summary', 'image', 'tags', 'status'] as const;
+const KEYS = ['slug', 'title', 'summary', 'image', 'tags', 'status', 'devPort'] as const;
 const STATUSES: readonly string[] = [
   'live',
   'coming-soon',
@@ -56,6 +60,7 @@ export function parseGames(data: unknown): GameEntry[] {
   if (!Array.isArray(data)) throw new GamesDataError(['top level must be a list of games']);
   const problems: string[] = [];
   const seen = new Set<string>();
+  const ports = new Map<number, string>();
   const games: GameEntry[] = [];
 
   data.forEach((raw: unknown, i) => {
@@ -68,7 +73,7 @@ export function parseGames(data: unknown): GameEntry[] {
     const extra = Object.keys(raw).filter((k) => !(KEYS as readonly string[]).includes(k));
     if (extra.length) problems.push(`${where}: unknown field(s) ${extra.join(', ')}`);
 
-    const { slug, title, summary, image, tags, status } = raw;
+    const { slug, title, summary, image, tags, status, devPort } = raw;
     const text = (v: unknown, name: string, min: number, max: number): v is string => {
       if (typeof v !== 'string' || v.trim() !== v || v.length < min || v.length > max) {
         problems.push(`${where}: ${name} must be ${min}–${max} characters with no outer spaces`);
@@ -96,6 +101,22 @@ export function parseGames(data: unknown): GameEntry[] {
       !tags.every((t) => typeof t === 'string' && TAG.test(t) && t.length <= 16)
     ) {
       problems.push(`${where}: tags must be up to ${LIMITS.tagsMax} short lowercase words`);
+    }
+    if (devPort !== undefined) {
+      if (
+        typeof devPort !== 'number' ||
+        !Number.isInteger(devPort) ||
+        devPort < LIMITS.devPortMin ||
+        devPort > LIMITS.devPortMax
+      ) {
+        problems.push(
+          `${where}: devPort must be a whole number from ${LIMITS.devPortMin} to ${LIMITS.devPortMax}`,
+        );
+      } else if (ports.has(devPort)) {
+        problems.push(`${where}: devPort ${devPort} is already used by "${ports.get(devPort)}"`);
+      } else {
+        ports.set(devPort, typeof slug === 'string' ? slug : where);
+      }
     }
     if (typeof status !== 'string' || !STATUSES.includes(status)) {
       problems.push(`${where}: status must be one of ${STATUSES.join(', ')}`);

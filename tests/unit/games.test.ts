@@ -164,6 +164,31 @@ describe('reserved and in-development', () => {
   });
 });
 
+describe('devPort', () => {
+  it('is optional', () => {
+    expect(problems([valid])).toEqual([]);
+  });
+
+  it('accepts a port in range', () => {
+    expect(problems(one({ devPort: 5175 }))).toEqual([]);
+  });
+
+  it.each([[5170], [5100], [5900], [80], ['5175'], [5175.5]])('rejects %j', (devPort) => {
+    expect(problems(one({ devPort }))).toEqual([
+      'game 1: devPort must be a whole number from 5171 to 5899',
+    ]);
+  });
+
+  it('must be unique across games', () => {
+    expect(
+      problems([
+        { ...valid, devPort: 5175 },
+        { ...valid, slug: 'b', devPort: 5175 },
+      ]),
+    ).toEqual(['game 2: devPort 5175 is already used by "star-destroyer"']);
+  });
+});
+
 describe('parseGameFiles', () => {
   const file = (g: Partial<GameEntry> & { slug: string }) => ({ [`../games/${g.slug}.json`]: g });
 
