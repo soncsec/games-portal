@@ -100,6 +100,12 @@ if [[ $? -eq 0 && "$(live)" == "$first" ]]; then ok "rollback command returns to
 if [[ "$(readlink "$T/server/web/index.html")" == _portal/index.html ]]; then ok "the home page is served through the _portal link"; else bad "index.html: $(ls -la "$T/server/web")"; fi
 if [[ "$out" == *"WARN star-destroyer/"* ]]; then ok "warns that a listed game is not released yet"; else bad "no game warning: $out"; fi
 
+out="$(release activate "$second")"
+if [[ $? -eq 0 && "$(live)" == "$second" && "$out" == *"smoke test: passed"* ]]; then ok "activate switches forward to a chosen release"; else bad "activate: $out"; fi
+out="$(release activate 20990101T000000Z-deadbeef)"
+if [[ $? -ne 0 && "$out" == *"no such release"* && "$(live)" == "$second" ]]; then ok "activate refuses an unknown release and changes nothing"; else bad "activate unknown: $out"; fi
+release rollback >/dev/null
+
 out="$(release status)"
 if [[ "$out" == *"* $first (live)"* ]]; then ok "status shows the live release"; else bad "status: $out"; fi
 
