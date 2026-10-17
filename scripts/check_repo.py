@@ -4,6 +4,8 @@
 - Art packs (legacy/) and OS junk files are never committed.
 - No committed file is larger than 5 MB.
 - Every file in public/images/ is a real PNG, WebP or JPEG.
+- No private network addresses (server or dev machine) in tracked text files;
+  they belong in the git-ignored deploy/server.env.
 """
 import pathlib
 import re
@@ -13,6 +15,10 @@ import sys
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 MAX_BYTES = 5 * 1024 * 1024
 FORBIDDEN = re.compile(r"(^|/)(legacy/|__MACOSX/|\.DS_Store$)")
+PRIVATE_IP = re.compile(
+    r"\b(?:10(?:\.\d{1,3}){3}|192\.168(?:\.\d{1,3}){2}|172\.(?:1[6-9]|2\d|3[01])(?:\.\d{1,3}){2})\b"
+)
+TEXT_SUFFIXES = {".md", ".ts", ".js", ".json", ".yml", ".yaml", ".py", ".sh", ".html", ".css", ".txt", ".example", ".conf", ""}
 SIGNATURES = {
     ".png": [b"\x89PNG\r\n\x1a\n"],
     ".jpg": [b"\xff\xd8\xff"],
@@ -32,6 +38,10 @@ def main() -> int:
         full = ROOT / path
         if full.is_file() and full.stat().st_size > MAX_BYTES:
             errors.append(f"file over 5 MB: {path}")
+        if full.is_file() and full.suffix in TEXT_SUFFIXES and path != "package-lock.json":
+            match = PRIVATE_IP.search(full.read_text(errors="ignore"))
+            if match:
+                errors.append(f"private network address {match.group()} in {path}")
 
     images = ROOT / "public" / "images"
     count = 0
