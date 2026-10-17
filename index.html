@@ -3,16 +3,31 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Soncrant Arcade: free browser games." />
+    <meta
+      name="description"
+      content="Soncrant Arcade: free retro browser games. No sign-up, no tracking."
+    />
+    <meta name="color-scheme" content="dark" />
     <title>Soncrant Arcade</title>
+    <link rel="icon" type="image/png" href="./favicon.png" />
   </head>
   <body>
-    <header>
-      <h1>Soncrant Arcade</h1>
+    <header class="marquee">
+      <h1 class="wordmark">
+        <span class="wordmark-top">Soncrant</span>
+        <span class="wordmark-bottom">Arcade</span>
+      </h1>
+      <p class="tagline"><span class="blink" aria-hidden="true">▶</span> Select your game</p>
     </header>
+
     <main>
-      <ul id="games" aria-label="Games"></ul>
+      <ul id="games" class="grid" aria-label="Games"></ul>
     </main>
+
+    <footer class="footer">
+      <p>Free to play · No sign-up · No tracking · No cookies</p>
+    </footer>
+
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
