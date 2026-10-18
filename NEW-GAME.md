@@ -24,6 +24,7 @@ Steps marked **(owner)** need the owner, either to do them or to approve them.
   | extrat | 5175 | 6175 | 6176 |
   | nuclearwinter | 5177 | 6177 | 6178 |
   | helirescue | 5180 | 6180 | 6181 |
+  | waka-waka | 5182 | 6182 | 6183 |
   | game-template (the template itself) | 5190 | 6190 | 6191 |
 
   Also check `grep -h devPort games/*.json` here, and add your game to this table in step 6.
