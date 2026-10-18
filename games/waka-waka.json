@@ -2,7 +2,8 @@
   "slug": "waka-waka",
   "title": "Waka-Waka",
   "summary": "Eat every dot in maze after maze while four cunning opponents hunt you down. Each maze they get faster and smarter.",
+  "image": "images/waka-waka.png",
   "tags": ["maze", "arcade"],
-  "status": "in-development",
+  "status": "live",
   "devPort": 5182
 }
