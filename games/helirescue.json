@@ -2,7 +2,8 @@
   "slug": "helirescue",
   "title": "HeliRescue",
   "summary": "Fly a rescue helicopter into a near-future war zone. Land on rooftops under fire and bring the trapped people home.",
+  "image": "images/helirescue.png",
   "tags": ["arcade", "shooter", "rescue"],
-  "status": "in-development",
+  "status": "live",
   "devPort": 5180
 }
