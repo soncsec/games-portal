@@ -22,6 +22,7 @@ Steps marked **(owner)** need the owner, either to do them or to approve them.
   | star-destroyer | 5173 | 4173 | 4174 |
   | contro | 5174 | 4175 | 4176 |
   | extrat | 5175 | 6175 | 6176 |
+  | nuclearwinter | 5177 | 6177 | 6178 |
   | helirescue | 5180 | 6180 | 6181 |
   | game-template (the template itself) | 5190 | 6190 | 6191 |
 
