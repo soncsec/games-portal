@@ -8,3 +8,4 @@
 
 - `public/images/star-destroyer.png` and `public/favicon.png`: screenshots of Star Destroyer, which uses the Ansimuz Legacy Collection art (CC0). See the star-destroyer repo's `CREDITS.md`.
 - `public/images/extrat.png`: a screenshot of Extrat, which uses the Ansimuz Legacy Collection art (CC0). See the extrat repo's `CREDITS.md`.
+- `public/images/nuclearwinter.png`: a screenshot of Nuclear Winter, which uses the Ansimuz Legacy Collection art (CC0). See the nuclearwinter repo's `CREDITS.md`.
