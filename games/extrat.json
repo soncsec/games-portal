@@ -2,7 +2,8 @@
   "slug": "extrat",
   "title": "Extrat",
   "summary": "Lead a squad of four marines across Earth landscapes in turn-based battles against aliens that hide in the fog and ambush.",
+  "image": "images/extrat.png",
   "tags": ["tactics", "turn based", "sci fi"],
-  "status": "in-development",
+  "status": "coming-soon",
   "devPort": 5175
 }
