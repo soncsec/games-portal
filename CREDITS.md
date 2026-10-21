@@ -10,3 +10,4 @@
 - `public/images/extrat.png`: a screenshot of Extrat, which uses the Ansimuz Legacy Collection art (CC0). See the extrat repo's `CREDITS.md`.
 - `public/images/helirescue.png`: a screenshot of HeliRescue: Claude-made helicopter and buildings, and Ansimuz Legacy Collection backdrop and civilian (CC0). See the helirescue repo's `CREDITS.md`.
 - `public/images/nuclearwinter.png`: a screenshot of Nuclear Winter, which uses the Ansimuz Legacy Collection art (CC0). See the nuclearwinter repo's `CREDITS.md`.
+- `public/images/contro.png`: a scene composed from Contro's own game art: the Gothicvania demon (recoloured), the living-tissue tiles and the space marine from the Ansimuz Legacy Collection (CC0), and Claude-drawn acid effects. See the contro repo's `CREDITS.md`.
