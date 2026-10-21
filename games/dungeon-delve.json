@@ -2,7 +2,8 @@
   "slug": "dungeon-delve",
   "title": "Dungeon Delve",
   "summary": "Guide young hero Jarrett through a wild overworld and eight monster-filled dungeons to rebuild the Star of Power and rescue Princess Kira.",
+  "image": "images/dungeon-delve.png",
   "tags": ["adventure", "action", "fantasy"],
-  "status": "in-development",
+  "status": "live",
   "devPort": 5184
 }
